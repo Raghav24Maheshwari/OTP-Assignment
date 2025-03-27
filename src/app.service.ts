@@ -13,12 +13,23 @@ export class AppService {
     const otp = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
     const timestamp = Date.now(); // Get timestamp in milliseconds
 
+    let otpData: { userId: string; otp: number; timestamp: number }[] = [];
+    if (fs.existsSync(this.filePath)) {
+      const fileContent = fs.readFileSync(this.filePath, 'utf-8');
+      otpData = fileContent ? JSON.parse(fileContent) as { userId: string; otp: number; timestamp: number }[] : [];
+  }
+    const existingUser = otpData.find(entry => entry.userId === userId);
+    if (existingUser) {
+      return { message: 'User ID already exists' };
+  }
     const otpEntry = { userId, otp, timestamp };
 
     this.saveToFile(otpEntry);
 
     return { message: 'OTP generated successfully', otp, timestamp };
   }
+
+
 
   private saveToFile(otpEntry: { userId: string; otp: string; timestamp: number }) {
     let otpData: { userId: string; otp: string; timestamp: number }[] = []; // Define correct type
@@ -33,7 +44,7 @@ export class AppService {
     fs.writeFileSync(this.filePath, JSON.stringify(otpData, null, 2));
   }
 
-  verifyOtp(userId: string) {
+  verifyOtp(userId: string,otp:string) {
     if (!fs.existsSync(this.filePath)) {
       return { message: 'Invalid OTP' };
     }
@@ -42,16 +53,20 @@ export class AppService {
     const otpData: { userId: string; otp: string; timestamp: number }[] = JSON.parse(fileContent);
 
     const userOtp = otpData.find(entry => entry.userId === userId);
+    const otpCheck = otpData.find(entry => entry.otp === otp);
 
     if (!userOtp) {
-      return { message: 'Invalid OTP' }; // ❌ User ID not found
+      return { message: 'Invalid OTP' }; //  User ID not found
+    }
+    if (!otpCheck) {
+      return { message: 'Invalid OTP' }; //  User OTP not found
     }
 
     const currentTime = Date.now();
     const timeDiff = currentTime - userOtp.timestamp;
 
     if (timeDiff > this.OTP_EXPIRY_TIME) {
-      return { message: 'OTP Expired' }; // ❌ OTP expired
+      return { message: 'OTP Expired' }; //  OTP expired
     }
 
     return { message: 'OTP Verified', otp: userOtp.otp, timestamp: userOtp.timestamp }; // ✅ OTP valid

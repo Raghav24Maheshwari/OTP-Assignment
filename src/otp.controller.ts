@@ -43,7 +43,7 @@ export class OtpController {
     return res.status(HttpStatus.BAD_REQUEST).json({ message: 'OTP is required' });
   }
 
-  const result = this.appService.verifyOtp(userId);
+  const result = this.appService.verifyOtp(userId,otp);
   return res.status(HttpStatus.OK).json(result);
     }
   }

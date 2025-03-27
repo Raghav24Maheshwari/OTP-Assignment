@@ -4,9 +4,8 @@ import * as path from 'path';
 
 @Injectable()
 export class AppService {
-  // private readonly filePath = path.join(__dirname, 'otp.json');
-   private readonly filePath = path.join(process.cwd(), 'src', 'otp.json');
-   private readonly OTP_EXPIRY_TIME = 10 * 60 * 1000; // 
+    filePath = path.join(process.cwd(), 'src', 'otp.json');
+    OTP_EXPIRY_TIME = 10 * 60 * 1000; // 
 
 
   generateOtp(userId: string) {

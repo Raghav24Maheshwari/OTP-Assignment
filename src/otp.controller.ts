@@ -20,10 +20,35 @@ export class OtpController {
   }
 
   @Post('generate')
-  generateOtp(@Body('userId') userId: string) {
-    return this.appService.generateOtp(userId);
+  generateOtp(@Body('userId') userId: string, @Res() res: Response) {
+    if (!userId) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: 'User ID is required' });
+    }
+
+    const result = this.appService.generateOtp(userId);
+    return res.status(HttpStatus.CREATED).json(result);
   }
-}
+
+  @Post('verify-otp')
+  verifyOtp(@Res() res: Response , @Body('userId') userId: string,@Body('otp') otp: string) {
+    if(userId===undefined || userId===null) {
+      return res
+      .status(HttpStatus.BAD_REQUEST)
+      .send(`required filed userId is missing`);
+  }
+  if (!userId) {
+    return res.status(HttpStatus.BAD_REQUEST).json({ message: 'User ID is required' });
+  }
+  if (!otp) {
+    return res.status(HttpStatus.BAD_REQUEST).json({ message: 'OTP is required' });
+  }
+
+  const result = this.appService.verifyOtp(userId);
+  return res.status(HttpStatus.OK).json(result);
+    }
+  }
+
+
 
 
 

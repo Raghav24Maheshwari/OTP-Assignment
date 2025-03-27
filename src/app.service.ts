@@ -5,7 +5,8 @@ import * as path from 'path';
 @Injectable()
 export class AppService {
   // private readonly filePath = path.join(__dirname, 'otp.json');
-  private readonly filePath = path.join(process.cwd(), 'src', 'otp.json');
+   private readonly filePath = path.join(process.cwd(), 'src', 'otp.json');
+   private readonly OTP_EXPIRY_TIME = 10 * 60 * 1000; // 
 
 
   generateOtp(userId: string) {
@@ -32,5 +33,30 @@ export class AppService {
   
     fs.writeFileSync(this.filePath, JSON.stringify(otpData, null, 2));
   }
+
+  verifyOtp(userId: string) {
+    if (!fs.existsSync(this.filePath)) {
+      return { message: 'Invalid OTP' };
+    }
+
+    const fileContent = fs.readFileSync(this.filePath, 'utf-8');
+    const otpData: { userId: string; otp: string; timestamp: number }[] = JSON.parse(fileContent);
+
+    const userOtp = otpData.find(entry => entry.userId === userId);
+
+    if (!userOtp) {
+      return { message: 'Invalid OTP' }; // ❌ User ID not found
+    }
+
+    const currentTime = Date.now();
+    const timeDiff = currentTime - userOtp.timestamp;
+
+    if (timeDiff > this.OTP_EXPIRY_TIME) {
+      return { message: 'OTP Expired' }; // ❌ OTP expired
+    }
+
+    return { message: 'OTP Verified', otp: userOtp.otp, timestamp: userOtp.timestamp }; // ✅ OTP valid
+  }
+
   
 }

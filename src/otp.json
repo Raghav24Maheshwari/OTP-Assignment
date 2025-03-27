@@ -1,82 +1,17 @@
 [
   {
     "userId": "1",
-    "otp": "1640",
-    "timestamp": 1743071348965
+    "otp": "8299",
+    "timestamp": 1743081580923
   },
   {
     "userId": "2",
-    "otp": "6130",
-    "timestamp": 1743072369419
+    "otp": "1921",
+    "timestamp": 1743081588033
   },
   {
-    "userId": "2",
-    "otp": "2235",
-    "timestamp": 1743073903646
-  },
-  {
-    "userId": "1",
-    "otp": "8896",
-    "timestamp": 1743074081527
-  },
-  {
-    "userId": "1",
-    "otp": "8695",
-    "timestamp": 1743074099372
-  },
-  {
-    "userId": "2",
-    "otp": "3881",
-    "timestamp": 1743074204001
-  },
-  {
-    "userId": "1",
-    "otp": "4768",
-    "timestamp": 1743074238658
-  },
-  {
-    "userId": "2",
-    "otp": "8468",
-    "timestamp": 1743074275676
-  },
-  {
-    "userId": "2",
-    "otp": "9239",
-    "timestamp": 1743074311693
-  },
-  {
-    "userId": "2",
-    "otp": "1106",
-    "timestamp": 1743074357755
-  },
-  {
-    "userId": "66",
-    "otp": "1260",
-    "timestamp": 1743074413188
-  },
-  {
-    "userId": "66",
-    "otp": "4441",
-    "timestamp": 1743074439345
-  },
-  {
-    "userId": "12345",
-    "otp": "6258",
-    "timestamp": 1743074993141
-  },
-  {
-    "userId": "12345",
-    "otp": "1355",
-    "timestamp": 1743075134920
-  },
-  {
-    "userId": "1",
-    "otp": "6329",
-    "timestamp": 1743075483364
-  },
-  {
-    "userId": "1",
-    "otp": "2442",
-    "timestamp": 1743075489486
+    "userId": "3",
+    "otp": "5711",
+    "timestamp": 1743081595180
   }
 ]

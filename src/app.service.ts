@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
-import * as path from 'path';
 import { OTP_EXPIRY_TIME } from './utils/constants';
 import { generateOtp } from './utils/helper';
 import { readOtpFile } from './utils/file-helper';
@@ -13,16 +12,16 @@ export class AppService {
     const otp = generateOtp();
     const timestamp = Date.now(); 
    let otpData = readOtpFile(filePath);
-    if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
-      otpData = fileContent
-        ? (JSON.parse(fileContent) as {
-            userId: string;
-            otp: number;
-            timestamp: number;
-          }[])
-        : [];
-    }
+    // if (fs.existsSync(filePath)) {
+    //   const fileContent = fs.readFileSync(filePath, 'utf-8');
+    //   otpData = fileContent
+    //     ? (JSON.parse(fileContent) as {
+    //         userId: string;
+    //         otp: number;
+    //         timestamp: number;
+    //       }[])
+    //     : [];
+    // }
     const existingUser = otpData.find((entry) => entry.userId === userId);
     if (existingUser) {
       return {

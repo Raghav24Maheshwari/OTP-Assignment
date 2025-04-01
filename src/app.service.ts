@@ -2,19 +2,19 @@
 import { Injectable, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-
+import { OTP_EXPIRY_TIME } from './utils/constants';
+import { generateOtp } from './utils/helper';
+import { readOtpFile } from './utils/file-helper';
+import { filePath } from './utils/constants';
 @Injectable()
 export class AppService {
-  filePath = path.join(process.cwd(), 'src', 'otp.json');
-  OTP_EXPIRY_TIME = 10 * 60 * 1000; //
 
   generateOtp(userId: string) {
-    const otp = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit OTP
-    const timestamp = Date.now(); // Get timestamp in milliseconds
-
-    let otpData: { userId: string; otp: number; timestamp: number }[] = [];
-    if (fs.existsSync(this.filePath)) {
-      const fileContent = fs.readFileSync(this.filePath, 'utf-8');
+    const otp = generateOtp();
+    const timestamp = Date.now(); 
+   let otpData = readOtpFile(filePath);
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
       otpData = fileContent
         ? (JSON.parse(fileContent) as {
             userId: string;
@@ -49,28 +49,29 @@ export class AppService {
   }) {
     let otpData: { userId: string; otp: string; timestamp: number }[] = []; // Define correct type
 
-    if (fs.existsSync(this.filePath)) {
-      const fileContent = fs.readFileSync(this.filePath, 'utf-8');
-      otpData = fileContent
-        ? (JSON.parse(fileContent) as {
-            userId: string;
-            otp: string;
-            timestamp: number;
-          }[])
-        : [];
-    }
+    // if (fs.existsSync(this.filePath)) {
+    //   const fileContent = fs.readFileSync(this.filePath, 'utf-8');
+    //   otpData = fileContent
+    //     ? (JSON.parse(fileContent) as {
+    //         userId: string;
+    //         otp: string;
+    //         timestamp: number;
+    //       }[])
+    //     : [];
+    // }
 
     otpData.push(otpEntry);
 
-    fs.writeFileSync(this.filePath, JSON.stringify(otpData, null, 2));
+    fs.writeFileSync(filePath, JSON.stringify(otpData, null, 2));
   }
 
+  
   verifyOtp(userId: string, otp: string) {
-    if (!fs.existsSync(this.filePath)) {
+    if (!fs.existsSync(filePath)) {
       return { message: 'Invalid OTP' };
     }
 
-    const fileContent = fs.readFileSync(this.filePath, 'utf-8');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
     const otpData: { userId: string; otp: string; timestamp: number }[] =
       JSON.parse(fileContent);
 
@@ -87,7 +88,7 @@ export class AppService {
     const currentTime = Date.now();
     const timeDiff = currentTime - userEntry.timestamp;
 
-    if (timeDiff > this.OTP_EXPIRY_TIME) {
+    if (timeDiff > OTP_EXPIRY_TIME) {
       return { statusCode: HttpStatus.GONE, message: 'OTP Expired' }; //  OTP expired
     }
 

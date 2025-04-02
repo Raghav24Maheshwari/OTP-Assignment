@@ -5,7 +5,11 @@ import { AppService } from './app.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { GenerateOtpDto } from "./modules/otp/generate-otp.dto";
 import { VerifyOtpDto } from "./modules/otp/verify-otp.dto";
-import { CLIENT_RENEG_LIMIT } from "tls";
+import { conflictMessage, generateSummary, Gone, serverError } from "./utils/constants";
+import { NotFound } from "./utils/constants";
+import { otpGenerated } from "./utils/constants";
+import { otpVerified } from "./utils/constants";
+import { verifySummary } from "./utils/constants";
 
 
 
@@ -32,34 +36,35 @@ export class helloController {
 export class OtpController {
   constructor(private readonly appService: AppService) {}
 
-  @Post('generate')
-  @ApiOperation({ summary: 'Generates an OTP for a given user id' })
-  @ApiResponse({ status: 201, description: 'OTP generated successfully' })
-  @ApiResponse({ status: 400, description: 'User ID is required' })
-  @ApiResponse({ status: 409, description: 'User ID already exists' })
+  @Post()
+  @ApiOperation({ summary: generateSummary })
+  @ApiResponse({ status: HttpStatus.CREATED, description: otpGenerated })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: NotFound })
+  @ApiResponse({ status: HttpStatus.CONFLICT, description: conflictMessage })
   @ApiBody({ type: GenerateOtpDto }) 
   async generateOtp(@Body() body: GenerateOtpDto, @Res() res: Response) {
     try {
       const result = this.appService.generateOtp(body.userId);
       return res.status(result.statusCode).json({ result, message: result.message });
     } catch (error) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `Something went wrong ${error}` });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `${serverError} ${error}` });
     }
   }
   
-  @Post('verify-otp')
-  @ApiOperation({ summary: 'Verify an OTP for a given userId or OTP' })
-  @ApiResponse({ status: 201, description: 'OTP Verified' })
-  @ApiResponse({ status: 400, description: 'User ID is required and OTP is required' })
-  @ApiResponse({ status: 410, description: 'otp expired' })
+  @Post('_verify')
+  @ApiOperation({ summary: verifySummary })
+  @ApiResponse({ status: HttpStatus.OK, description: otpVerified })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: NotFound })
+  @ApiResponse({ status: HttpStatus.GONE, description: Gone })
   @ApiBody({ type: VerifyOtpDto }) 
   verifyOtp(@Body() body: VerifyOtpDto, @Res() res: Response) {
     try{
       const result = this.appService.verifyOtp(body.userId,body.otp);
-      return res.status(HttpStatus?.OK).json({ result });
+      const statusCode = result?.statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR;
+      return res.status(statusCode).json({ result });
     }
     catch(error){
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `Something went wrong ${error}` });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: `${serverError} ${error}` });
     }
     
   }
